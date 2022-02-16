@@ -1,0 +1,35 @@
+---
+
+- name: get or create database
+  block:
+      - name: create a database
+        google.cloud.gcp_sql_database:
+          name: "{{ db_name }}"
+          charset: utf8
+          instance: "{{ hostvars.localhost.db_instance.name }}"
+          project: "{{ gcp_project }}"
+          auth_kind: "{{ gcp_auth_kind }}"
+          service_account_file: "{{ gcp_cred_file }}"
+          state: present
+          
+      - name: create a user and ignore python error
+        block:
+          - name: create a user
+            google.cloud.gcp_sql_user:
+              name: "{{ db_user_name }}" 
+              host: groups['_wiki_server'][0]
+              password: "{{ db_user_password }}"
+              instance: "{{ hostvars.localhost.db_instance }}" 
+              project: "{{ gcp_project }}"
+              auth_kind: "{{ gcp_auth_kind }}"
+              service_account_file: "{{ gcp_cred_file }}"
+              state: present
+        ignore_errors: yes
+          
+  rescue:
+      - name: get info on a database
+        gcp_sql_database_info:
+          instance: "{{ hostvars.localhost.db_instance.name }}"
+          project: "{{ gcp_project }}"
+          auth_kind: "{{ gcp_auth_kind }}"
+          service_account_file: "{{ gcp_cred_file }}"

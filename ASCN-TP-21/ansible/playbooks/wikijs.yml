@@ -1,0 +1,38 @@
+---
+- name: 'create wiki_server, database and monitor_server'
+  hosts: localhost
+  connection: local
+  become: false
+  gather_facts: no
+
+  roles:
+    - role: gcp
+
+- name: 'Setup database'
+  hosts: localhost
+  connection: local
+
+  roles:
+    - role: wiki_db
+
+- name: "wiki-server deployment"
+  hosts: _wiki_server
+  tags:
+    - create
+  roles:
+    - role: wiki_server
+
+- name: "monitor-server deployment"
+  hosts: _monitor_server
+  tags:
+    - monitoring
+  roles:
+    - role: monitor_server
+
+- name: "wiki_server and db monitoring deployment "
+  hosts:
+    - _wiki_server
+  tags:
+    - monitoring
+  roles:
+    - role: monitor_client

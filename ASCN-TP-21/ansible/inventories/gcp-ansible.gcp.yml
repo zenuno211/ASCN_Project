@@ -1,0 +1,10 @@
+---
+plugin: gcp_compute
+projects: 
+        - ascn2021
+auth_kind: serviceaccount
+service_account_file: ascn2021-service.json
+keyed_groups:
+    - key: labels.type
+scopes:
+  - https://www.googleapis.com/auth/compute
